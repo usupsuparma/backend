@@ -15,8 +15,6 @@ app.get("/", (req, res, next) => {
 });
 
 app.post("/create-post", (req, res, next) => {
-  // instantiate a new client (client side)
-
   let token = req.headers.api_key;
   let { message, verb, object, foreign_id } = req.body;
   const client = stream.connect(process.env.API_KEY, token, process.env.APP_ID);
@@ -24,7 +22,6 @@ app.post("/create-post", (req, res, next) => {
 
   user
     .addActivity({
-      // actor: "SU:"+ client.user(usup.id),
       verb: verb,
       object: object,
       foreign_id: foreign_id,
@@ -46,7 +43,6 @@ app.post("/create-post", (req, res, next) => {
 });
 
 app.post("/create-reaction", (req, res, next) => {
-  // adds a comment reaction to the activity and notifies Thierry's notification feed
   const token = req.headers.api_key;
   const { activity_id, kind, message, target_feeds } = req.body;
   const client = stream.connect(process.env.API_KEY, token, process.env.APP_ID);
@@ -64,10 +60,8 @@ app.post("/create-reaction", (req, res, next) => {
 app.post("/create-token", (req, res) => {
   // instantiate a new client (server side)
   const clientServer = stream.connect(process.env.API_KEY, process.env.SECRET);
-  const user = req.body.user;
-  console.log(user);
-  // const id = "jack";
-  const userToken = clientServer.createUserToken(user);
+  const userId = req.body.user_id;
+  const userToken = clientServer.createUserToken(userId);
   return res.status(200).json({
     token: userToken,
     id: user,
@@ -76,7 +70,6 @@ app.post("/create-token", (req, res) => {
 
 app.post("/create-user", (req, res, next) => {
   const { name, job, gender } = req.body;
-  console.log(req.body);
   const client = stream.connect(process.env.API_KEY, process.env.SECRET);
   client
     .user("jack")
@@ -86,14 +79,12 @@ app.post("/create-user", (req, res, next) => {
       gender: "male",
     })
     .then((result) => {
-      console.log(res);
       res.status(201).json({
         status: "success",
         data: result,
       });
     })
     .catch((err) => {
-      console.log(err);
       res.status(404).json({
         status: "failed",
         data: null,
@@ -102,6 +93,7 @@ app.post("/create-user", (req, res, next) => {
     });
 });
 
+// get data feed
 app.get("/posts", (req, res, next) => {
   let token = req.headers.api_key;
   const client = stream.connect(process.env.API_KEY, token, process.env.APP_ID);
@@ -125,6 +117,7 @@ app.get("/posts", (req, res, next) => {
     });
 });
 
+// get data reaction by activity_id
 app.get("/reactions", (req, res) => {
   let token = req.headers.api_key;
   let activity_id = req.body.activity_id;
