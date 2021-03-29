@@ -14,6 +14,7 @@ app.get("/", (req, res, next) => {
   });
 });
 
+// create post activity with type flat kind feed timeline
 app.post("/create-post", (req, res, next) => {
   let token = req.headers.api_key;
   let { message, verb, object, foreign_id } = req.body;
@@ -42,6 +43,7 @@ app.post("/create-post", (req, res, next) => {
     });
 });
 
+// create reaction
 app.post("/create-reaction", (req, res, next) => {
   const token = req.headers.api_key;
   const { activity_id, kind, message, target_feeds } = req.body;
