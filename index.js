@@ -47,19 +47,12 @@ app.post("/create-post", (req, res, next) => {
 
 app.post("/create-reaction", (req, res, next) => {
   // adds a comment reaction to the activity and notifies Thierry's notification feed
-  const client = stream.connect(
-    process.env.API_KEY,
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidXN1cC10ZXN0In0.UOdMZXAv2APzpTsqCLbbb28VlsvIsHy4o-s5rNLri8c",
-    process.env.APP_ID
-  );
+  const token = req.headers.api_key;
+  const { activity_id, kind, message, target_feeds } = req.body;
+  const client = stream.connect(process.env.API_KEY, token, process.env.APP_ID);
 
   client.reactions
-    .add(
-      "comment",
-      "98a906c3-8fcb-11eb-b025-12d73b08236b",
-      { text: "@usup senang sekali iah anda " },
-      { targetFeeds: ["notification:thierry"] }
-    )
+    .add(kind, activity_id, message, target_feeds)
     .then((result) => {
       res.status(200).json({ status: "success", data: result });
     })
