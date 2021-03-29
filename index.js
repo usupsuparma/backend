@@ -20,8 +20,6 @@ app.post("/create-post", (req, res, next) => {
   let token = req.headers.api_key;
   let { message, verb, object, foreign_id } = req.body;
   const client = stream.connect(process.env.API_KEY, token, process.env.APP_ID);
-  console.log(client);
-
   const user = client.feed("timeline", client.userId, token);
 
   user
@@ -33,7 +31,6 @@ app.post("/create-post", (req, res, next) => {
       message: message,
     })
     .then((result) => {
-      console.log(result);
       res.status(200).json({
         status: "success",
         data: result,
@@ -113,20 +110,13 @@ app.post("/create-user", (req, res, next) => {
 });
 
 app.get("/posts", (req, res, next) => {
-  const client = stream.connect(
-    process.env.API_KEY,
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiamFjayJ9.8_s_5bBxXV0pukAxTj526pDE27SzNZEKySZxWJL7j6s",
-    process.env.APP_ID
-  );
+  let token = req.headers.api_key;
+  const client = stream.connect(process.env.API_KEY, token, process.env.APP_ID);
 
-  const user = client.feed(
-    "timeline",
-    client.userId,
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiamFjayJ9.8_s_5bBxXV0pukAxTj526pDE27SzNZEKySZxWJL7j6s"
-  );
+  const user = client.feed("timeline", client.userId, token);
 
   user
-    .get({ limit: 5, offset: 5 })
+    .get()
     .then((result) => {
       res.status(200).json({
         status: "success",
@@ -135,6 +125,29 @@ app.get("/posts", (req, res, next) => {
     })
     .catch((err) => {
       res.status(400).json({
+        status: "failed",
+        data: null,
+        error: err,
+      });
+    });
+});
+
+app.get("/reactions", (req, res) => {
+  let token = req.headers.api_key;
+  let activity_id = req.body.activity_id;
+  const client = stream.connect(process.env.API_KEY, token, process.env.APP_ID);
+  client.reactions
+    .filter({
+      activity_id: activity_id,
+    })
+    .then((result) => {
+      res.status(200).json({
+        status: "success",
+        data: result,
+      });
+    })
+    .catch((err) => {
+      res.status(403).json({
         status: "failed",
         data: null,
         error: err,
